@@ -65,10 +65,11 @@ list结构为链表提供了表头指针head、表尾指针tail，以及链表�
 ![image](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos/list_1.png)  
 ![image](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos/list_2.png)
 
-<h2 id="3">总结</h2>
+<h2 id="3">总结</h2>  
+
 * 链表被广泛用于实现Redis的各种功能，比如列表键、发布与订阅、慢查询、监视器等；
 * 每个链表节点由一个listNode结构来表示，每个节点都有一个指向前置节点和后置节点的指针，所以Redis的链表实现是双端链表。
 * 每个链表使用一个list结构来表示，这个结构带有表头节点指针、表尾节点指针，以及链表长度等信息。
 * 因为链表表头节点的前置节点和表尾节点的后置节点都指向NULL，所以Redis的链表实现是无环链表。 
 * 通过为链表设置不同的类型特定函数，Redis的链表可以用于保存各种不同类型的值。
-* [更多解析请参阅源码注释](https://github.com/xiethon/Redis-3.0/blob/master/src/list)
+* [更多解析请参阅源码注释](https://github.com/xiethon/Redis-3.0/tree/master/src_note/list)
