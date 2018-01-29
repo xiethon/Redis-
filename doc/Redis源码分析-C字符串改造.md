@@ -102,8 +102,11 @@ C字符串中的字符必须符合某种编码（比如ASCII），并且除了�
 <h2 id="8">3. SDS其他函数注释</h2>  
 
 * [sdsMakeRoomFor：字符串扩容](#9)
+* [sdsnew:创建一个字符串](#10)
+* [sdsIncrLen:改变字符串长度](#11)
+* [更多注释请参阅源码注释](https://github.com/xiethon/Redis-3.0/blob/master/src)
 
-<h6 id="9">sdsMakeRoomFor：字符串扩容</h6>  
+<h4 id="9">sdsMakeRoomFor：字符串扩容</h6>  
 
 ```C
 /* Enlarge the free space at the end of the sds string so that the caller
@@ -139,6 +142,124 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
 }
 ```
 
+<h4 id="10">sdsnew：创建一个sds字符串</h6>  
+
+```C
+/* Create a new sds string with the content specified by the 'init' pointer
+ * and 'initlen'.
+ * If NULL is used for 'init' the string is initialized with zero bytes.
+ *
+ * The string is always null-termined (all the sds strings are, always) so
+ * even if you create an sds string with:
+ *
+ * mystring = sdsnewlen("abc",3");
+ *
+ * You can print the string with printf() as there is an implicit \0 at the
+ * end of the string. However the string is binary safe and can contain
+ * \0 characters in the middle, as the length is stored in the sds header. */
+/* 创建新字符串方法，传入目标长度，初始化方法 */
+sds sdsnewlen(const void *init, size_t initlen) 
+{
+    struct sdshdr *sh;
+
+    if (init) {
+        sh = zmalloc(sizeof(struct sdshdr)+initlen+1);
+    } else {
+    	//当init函数为NULL时候，又来了zcalloc的方法
+        sh = zcalloc(sizeof(struct sdshdr)+initlen+1);
+    }
+    if (sh == NULL) return NULL;
+    sh->len = initlen;
+    sh->free = 0;
+    if (initlen && init)
+        memcpy(sh->buf, init, initlen);
+   //最末端同样要加‘\0’结束符
+    sh->buf[initlen] = '\0';
+    //最后是通过返回字符串结构体中的buf代表新的字符串
+    return (char*)sh->buf;
+}
+
+/* Create an empty (zero length) sds string. Even in this case the string
+ * always has an implicit null term. */
+/* 其实就是创建一个长度为0的空字符串 */
+sds sdsempty(void) {
+    return sdsnewlen("",0);
+}
+
+/* Create a new sds string starting from a null termined C string. */
+/* 根据init函数指针创建字符串 */
+sds sdsnew(const char *init) {
+    size_t initlen = (init == NULL) ? 0 : strlen(init);
+    return sdsnewlen(init, initlen);
+}
+}
+```
+
+<h4 id="11">sdsIncrLen：改变字符串常量</h6>  
+
+```C
+/* 改变字符串中的长度以使用量的使用情况数值 */
+void sdsIncrLen(sds s, int incr) {
+    struct sdshdr *sh = (void*) (s-(sizeof(struct sdshdr)));
+
+    if (incr >= 0)
+        assert(sh->free >= (unsigned int)incr);
+    else
+        assert(sh->len >= (unsigned int)(-incr));
+    sh->len += incr;
+    sh->free -= incr;
+    s[sh->len] = '\0';
+}
+
+/* Grow the sds to have the specified length. Bytes that were not part of
+ * the original length of the sds will be set to zero.
+ *
+ * if the specified length is smaller than the current length, no operation
+ * is performed. */
+/* 扩展字符串到指定的长度 */
+sds sdsgrowzero(sds s, size_t len) {
+    struct sdshdr *sh = (void*)(s-(sizeof(struct sdshdr)));
+    size_t totlen, curlen = sh->len;
+
+	//如果当前长度已经大于要求长度，直接返回
+    if (len <= curlen) return s;
+    //如果小于，则重新为此字符串分配新空间，得到新字符串
+    s = sdsMakeRoomFor(s,len-curlen);
+    if (s == NULL) return NULL;
+
+    /* Make sure added region doesn't contain garbage */
+    //确保多余的字符串不包含垃圾数据，置空处理
+    sh = (void*)(s-(sizeof(struct sdshdr)));
+    memset(s+curlen,0,(len-curlen+1)); /* also set trailing \0 byte */
+    totlen = sh->len+sh->free;
+    sh->len = len;
+    sh->free = totlen-sh->len;
+    return s;
+}
+
+/* Append the specified binary-safe string pointed by 't' of 'len' bytes to the
+ * end of the specified sds string 's'.
+ *
+ * After the call, the passed sds string is no longer valid and all the
+ * references must be substituted with the new pointer returned by the call. */
+/* 以t作为新添加的len长度buf的数据，实现追加操作 */
+sds sdscatlen(sds s, const void *t, size_t len) {
+    struct sdshdr *sh;
+    size_t curlen = sdslen(s);
+	
+	//为原字符串扩展len长度空间
+    s = sdsMakeRoomFor(s,len);
+    if (s == NULL) return NULL;
+    sh = (void*) (s-(sizeof(struct sdshdr)));
+    //多余的数据以t作初始化
+    memcpy(s+curlen, t, len);
+    //更改相应的len,free值
+    sh->len = curlen+len;
+    sh->free = sh->free-len;
+    s[curlen+len] = '\0';
+    return s;
+}
+```
 
 
 
