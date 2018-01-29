@@ -11,7 +11,7 @@ struct sdshdr{
 }；  
 ```  
 图1中展示了一个SDS示例  
-！[image](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos/SDS字符串.png)  
+！[image](https://github.com/xiethon/Redis-3.0/tree/master/doc/photos/SDS字符串.png)  
 
 * free属性的值为0，表示这个SDS没有分配任何未使用空间。  
 * len属性的值为5，表示这个SDS保存了一个五字节长的字符串。  
@@ -22,7 +22,7 @@ SDS遵循C字符串以空字符结尾的惯例，保存空字符的1字节空间
 ## 2. SDS与C字符串的区别 
 ### 2.1 对求字符串长度(strlen)的改造
 图2中展示了标准C库计算一个C字符串长度的过程。
-！[](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos/C字符串长度.png)  
+！[](https://github.com/xiethon/Redis-3.0/tree/master/doc/photos/C字符串长度.png)  
 
 和C字符串不同，因为SDS在len属性中记录了SDS本身的长度，所以获取一个SDS长度的复杂度仅为O(1)。 
 sdslen实现相关源码如下(sds/sds.h)  
@@ -72,9 +72,9 @@ C字符串中的字符必须符合某种编码（比如ASCII），并且除了�
 
 ## 2.5 总结
 图3中展示了SDS与C字符串的区别总结  
-！[](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos//C字符串与SDS字符串的区别.png)
+！[](https://github.com/xiethon/Redis-3.0/tree/master/doc/photos/C字符串与SDS字符串的区别.png)
 图4中展示了SDS主要API  
-！[](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos/SDS主要接口函数.png)
+！[](https://github.com/xiethon/Redis-3.0/tree/master/doc/photos/SDS主要接口函数.png)
 
 
 # SDS其他函数注释
