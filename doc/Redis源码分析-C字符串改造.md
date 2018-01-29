@@ -4,14 +4,14 @@
 
 ## 1. Redis字符串定义  
 ```C  
-	struct sdshdr{  
-		int len;  //buf中已使用的字节数量  
-		int free;  //未使用的字节数量  
-		char buf[];  //字节数组，用于保存字符串  
-	}；  
+struct sdshdr{  
+	int len;  //buf中已使用的字节数量  
+	int free;  //未使用的字节数量  
+	char buf[];  //字节数组，用于保存字符串  
+}；  
 ```  
 图1中展示了一个SDS示例  
-！[](phots/SDS字符串.png)  
+！[](photos/SDS字符串.png)  
 
 * free属性的值为0，表示这个SDS没有分配任何未使用空间。  
 * len属性的值为5，表示这个SDS保存了一个五字节长的字符串。  
@@ -22,18 +22,18 @@ SDS遵循C字符串以空字符结尾的惯例，保存空字符的1字节空间
 ## 2. SDS与C字符串的区别 
 ### 2.1 对求字符串长度(strlen)的改造
 图2中展示了标准C库计算一个C字符串长度的过程。
-！[](phots/C字符串长度.png)  
+！[](photos/C字符串长度.png)  
 
 和C字符串不同，因为SDS在len属性中记录了SDS本身的长度，所以获取一个SDS长度的复杂度仅为O(1)。 
 sdslen实现相关源码如下(sds/sds.h)  
 ```C
-	/* 计算sds的长度，返回的size_t类型的数值 */
-	/* size_t,它是一个与机器相关的unsigned类型，其大小足以保证存储内存中对象的大小。 */
-	static inline size_t sdslen(const sds s) 
-	{
-    	struct sdshdr *sh = (void*)(s-(sizeof(struct sdshdr)));
-    	return sh->len;
-	}
+/* 计算sds的长度，返回的size_t类型的数值 */
+/* size_t,它是一个与机器相关的unsigned类型，其大小足以保证存储内存中对象的大小。 */
+static inline size_t sdslen(const sds s) 
+{
+    struct sdshdr *sh = (void*)(s-(sizeof(struct sdshdr)));
+    return sh->len;
+}
 ```
 
 ### 2.2 杜绝缓冲溢出
@@ -45,23 +45,23 @@ SDS的sdscat在执行拼接操作之前检查s的长度是否足够，在发现s
 
 sdscat实现相关源码如下(sds/sds.c)：  
 ```C
-	sds sdscat(sds s, const char *t) 
-	{
-    	return sdscatlen(s, t, strlen(t));
-	}
-	sds sdscatlen(sds s, const void *t, size_t len)  
-	{  
-		struct sdshdr *sh;  
-		size_t curlen = sdslen(s);  
-		s = sdsMakeRoomFor(s,len);  //为原字符串扩展len长度空间
-		if (s == NULL) return NULL;
-		sh = (void*) (s-(sizeof(struct sdshdr)));
-		memcpy(s+curlen, t, len); 	//多余的数据以t作初始化
-		sh->len = curlen+len;//更改相应的len,free值
-		sh->free = sh->free-len;
-		s[curlen+len] = '\0';
-		return s;
-	}  
+sds sdscat(sds s, const char *t) 
+{
+    return sdscatlen(s, t, strlen(t));
+}
+sds sdscatlen(sds s, const void *t, size_t len)  
+{  
+	struct sdshdr *sh;  
+	size_t curlen = sdslen(s);  
+	s = sdsMakeRoomFor(s,len);  //为原字符串扩展len长度空间
+	if (s == NULL) return NULL;
+	sh = (void*) (s-(sizeof(struct sdshdr)));
+	memcpy(s+curlen, t, len); 	//多余的数据以t作初始化
+	sh->len = curlen+len;//更改相应的len,free值
+	sh->free = sh->free-len;
+	s[curlen+len] = '\0';
+	return s;
+}  
 ```
 ##  2.3 减少修改字符串时带来的内存重分配次数
 因为内存重分配涉及复杂的算法，并且可能需要执行系统调用，所以它通常是一个比较耗时的操作  
@@ -72,9 +72,9 @@ C字符串中的字符必须符合某种编码（比如ASCII），并且除了�
 
 ## 2.5 总结
 图3中展示了SDS与C字符串的区别总结  
-！[](C字符串与SDS字符串的区别.png)
+！[](photos/C字符串与SDS字符串的区别.png)
 图4中展示了SDS主要API  
-！[](SDS主要接口函数.png)
+！[](photosSDS主要接口函数.png)
 
 
 # SDS其他函数注释
