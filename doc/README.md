@@ -11,7 +11,7 @@ struct sdshdr{
 }；  
 ```  
 图1中展示了一个SDS示例  
-！[image](https://github.com/xiethon/Redis-3.0/tree/master/doc/photos/SDS字符串.png)  
+！[image](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos/SDS%E5%AD%97%E7%AC%A6%E4%B8%B2.png)  
 
 * free属性的值为0，表示这个SDS没有分配任何未使用空间。  
 * len属性的值为5，表示这个SDS保存了一个五字节长的字符串。  
