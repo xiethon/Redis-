@@ -37,6 +37,7 @@ SDS遵循C字符串以空字符结尾的惯例，保存空字符的1字节空间
 
 和C字符串不同，因为SDS在len属性中记录了SDS本身的长度，所以获取一个SDS长度的复杂度仅为O(1)。 
 sdslen实现相关源码如下(sds/sds.h)  
+
 ```C
 /* 计算sds的长度，返回的size_t类型的数值 */
 /* size_t,它是一个与机器相关的unsigned类型，其大小足以保证存储内存中对象的大小。 */
@@ -76,27 +77,32 @@ sds sdscatlen(sds s, const void *t, size_t len)
 }  
 ```
 ###  
-<h3 id="5">2.3 减少修改字符串时带来得内存重分配次数</h3>
+<h3 id="5">2.3 减少修改字符串时带来得内存重分配次数</h3>  
+
 因为内存重分配涉及复杂的算法，并且可能需要执行系统调用，所以它通常是一个比较耗时的操作。  
 为了避免C字符串的这种缺陷，SDS通过未使用空间解除了字符串长度和底层数组长度之间的关联：在SDS中，buf数组的长度不一定就是字符数量加一，数组里面可以包含未使用的字节，而这些字节的数量就由SDS的free属性记录。  
 通过空间预分配策略，Redis可以减少连续执行字符串增长操作所需的内存重分配次数。  
 
 ###   
-<h3 id="6">2.4 二进制安全</h4>
+<h3 id="6">2.4 二进制安全</h4>  
+
 C字符串中的字符必须符合某种编码（比如ASCII），并且除了字符串的末尾之外，字符串里面不能包含空字符，否则最先被程序读入的空字符将被误认为是字符串结尾，这些限制使得C字符串只能保存文本数据，而不能保存像图片、音频、视频、压缩文件这样的二进制数据。如果有一种使用空字符来分割多个单词的特殊数据格式。
 
 ##  
-<h3 id="7">2.5 总结</h3>
+<h3 id="7">2.5 总结</h3>  
+
 下图中展示了SDS与C字符串的区别总结  
 ![](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos//C字符串与SDS字符串的区别.png)  
 图4中展示了SDS主要API  
 ![](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos/SDS主要接口函数.png)  
 
 
-<h2 id="8">3. SDS其他函数注释</h2>
+<h2 id="8">3. SDS其他函数注释</h2>  
+
 * [sdsMakeRoomFor：字符串扩容](#9)
 
-<h6 id="9">sdsMakeRoomFor：字符串扩容</h6>
+<h6 id="9">sdsMakeRoomFor：字符串扩容</h6>  
+
 ```C
 /* Enlarge the free space at the end of the sds string so that the caller
  * is sure that after calling this function can overwrite up to addlen
