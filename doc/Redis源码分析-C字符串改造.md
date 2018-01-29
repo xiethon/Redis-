@@ -104,7 +104,7 @@ C字符串中的字符必须符合某种编码（比如ASCII），并且除了�
 * [sdsMakeRoomFor：字符串扩容](#9)
 * [sdsnew:创建一个字符串](#10)
 * [sdsIncrLen:改变字符串长度](#11)
-* [更多注释请参阅源码注释](https://github.com/xiethon/Redis-3.0/blob/master/src)
+* [更多注释请参阅源码注释](https://github.com/xiethon/Redis-3.0/blob/master/src/sds)
 
 <h4 id="9">sdsMakeRoomFor：字符串扩容</h6>  
 
