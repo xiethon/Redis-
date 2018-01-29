@@ -12,6 +12,7 @@
 * [SDS其他函数注释](#8)
 
 <h2 id="1">Redis字符串定义</h2>  
+
 ```C  
 struct sdshdr{  
 	int len;  //buf中已使用的字节数量  
@@ -19,6 +20,7 @@ struct sdshdr{
 	char buf[];  //字节数组，用于保存字符串  
 }；  
 ```  
+
 下图中展示了一个SDS示例  
 ![image](https://github.com/xiethon/Redis-3.0/blob/master/doc/photos/SDS字符串.png)  
 
