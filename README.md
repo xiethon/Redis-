@@ -8,5 +8,7 @@ Redis是一个使用ANSI C编写的开源、支持网络、基于内存、可选
 
 
 # 参阅资料
+* [Redis源码git仓库](https://github.com/antirez/redis)
 * [《Redis 设计与实现》-黄健宏](http://redisbook.com/)
+* [《Redis 设计与实现》作者对于源码注释git仓库](https://github.com/huangz1990/redis-3.0-annotated)
 * [CSDN博主-Android路上的人 关于redis源码分析相关博客](http://blog.csdn.net/androidlushangderen/article/details/39803337)
